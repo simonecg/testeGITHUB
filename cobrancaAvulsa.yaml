@@ -1,0 +1,188 @@
+swagger: '2.0'
+info:
+  description: Solicita a cobrança Avulsa para um cliente.
+  version: 1.0.0
+  title: Swagger Cobrança Avulsa
+  termsOfService: 'https://dev-us-api.experian.com/terms-of-service'
+  contact:
+    name: API team
+    url: 'https://dev-us-api.experian.com/contact'
+    email: apiteam@br.experian.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+host: dev-us-api.experian.com
+basePath: /backoffice/cobranca-avulsa/v1/
+tags:
+  - name: Cobrança Avulsa
+    description: Realiza cobrança avulsa
+schemes:
+  - http
+securityDefinitions:
+  OauthSecurity:
+    type: oauth2
+    flow: password
+    tokenUrl: 'https://dev-us-api.experian.com/br/oauth/v1/token'
+    scopes:
+      user: user Scope
+paths:
+  /faturas:
+    post:
+      tags:
+        - Cobrança Avulsa
+      summary: Adiciona Cobrança Avulsa
+      description: >-
+        COMPLETAR AQUI CONFORME ESSE EXEMPLO: Incluir uma cobrança, cadastra o
+        cliente, gera logon, Cobrar o cliente no próximo Faturamento, etc
+      operationId: addcobranca
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: Fatura
+          schema:
+            $ref: '#/definitions/Fatura'
+      responses:
+        '200':
+          description: Inclusão realizada com sucesso
+          schema:
+            $ref: '#/definitions/RespostaFatura'
+        '400':
+          description: Requisição inválida
+          schema:
+            $ref: '#/definitions/Erro'
+          examples:
+            application/json:
+              - 'codigo:1234': null
+                mensagem: CNPJ invalido
+              - 'codigo:2345': null
+                mensagem: 'Campos XXXX invalido '
+              - 'codigo:3456': null
+                mensagem: Colocar aqui todos os códigos e retornos possíveis
+        '500':
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/Erro'
+          examples:
+            application/json:
+              - 'codigo:99999': null
+                mensagem: Colocar aqui todos os códigos e retornos possíveis
+definitions:
+  Fatura:
+    required:
+      - documento
+      - tipoDocumento
+      - razaoSocial
+      - nomeFantasia
+      - tipoCobranca
+      - contato
+      - produto
+    properties:
+      documento:
+        type: string
+        description: Numero do documento do Cliente
+      tipoDocumento:
+        type: string
+        description: Tipo de Documento PF-Física ou PJ-Jurídica
+      razaoSocial:
+        type: string
+        description: Razão Social do Cliente
+      nomeFantasia:
+        type: string
+        description: Nome Fantasia do Cliente
+      tipoCobranca:
+        type: integer
+        format: int32
+        description: >-
+          Tipo de cobrança: (1=PÓS PAGO, 6=PRÉ-PAGO com Boleto,
+          9=PRÉ-PAGO-Cartão de Crédito
+      produto:
+        $ref: '#/definitions/Produto'
+      contato:
+        $ref: '#/definitions/Contato'
+  Produto:
+    required:
+      - codigo
+      - quantidade
+      - preco
+    properties:
+      codigo:
+        type: string
+        description: Código do Produto
+      quantidade:
+        type: integer
+        format: int32
+        description: Quantidade do Produtos
+      preco:
+        type: number
+        format: double
+        description: Preço do Produto - valor total que será cobrado
+  Contato:
+    required:
+      - cpf
+      - nome
+      - ddd
+      - telefone
+      - logradouro
+      - dataGeracao
+    properties:
+      cpf:
+        type: string
+      nome:
+        type: string
+      ddd:
+        type: number
+        format: int16
+      telefone:
+        type: string
+        format: int32
+      logradouro:
+        $ref: '#/definitions/Logradouro'
+      dataGeracao:
+        type: string
+        format: date-time
+        description: Data em que o contato foi criado
+  Logradouro:
+    required:
+      - logradouro
+      - numero
+      - complemento
+      - bairro
+      - cidade
+      - uf
+      - cep
+    properties:
+      logradouro:
+        type: string
+      numero:
+        type: string
+      complemento:
+        type: string
+      bairro:
+        type: string
+      cidade:
+        type: string
+      uf:
+        type: string
+      cep:
+        type: number
+        format: int32
+  RespostaFatura:
+    properties:
+      numeroSolicitacao:
+        type: integer
+        description: Número da solicitação gerada
+        format: int32
+  Erro:
+    properties:
+      codigo:
+        type: integer
+        format: int32
+      tipo:
+        type: string
+        description: Tipo de erro
+      mensagem:
+        type: string
+        description: Descrição do erro
